@@ -1,160 +1,196 @@
 <template>
 
-<v-card style="width:300px; margin-left:5%;" outlined>
-    <template slot="progress">
-      <v-progress-linear
-        color="deep-purple"
-        height="10"
-        indeterminate
-      ></v-progress-linear>
-    </template>
+    <v-card style="width:450px;" outlined>
+        <template slot="progress">
+            <v-progress-linear
+                    color="deep-purple"
+                    height="10"
+                    indeterminate
+            ></v-progress-linear>
+        </template>
 
-    <v-img
-      style="width:290px; height:150px; border-radius:10px; position:relative; margin-left:5px; top:5px;"
-      src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
-    ></v-img>
+        <v-card-title v-if="value._links">
+            Delivery # {{value._links.self.href.split("/")[value._links.self.href.split("/").length - 1]}}
+        </v-card-title >
+        <v-card-title v-else>
+            Delivery
+        </v-card-title >
 
-    <v-card-title v-if="value._links">
-        Delivery # {{value._links.self.href.split("/")[value._links.self.href.split("/").length - 1]}}
-    </v-card-title >
-    <v-card-title v-else>
-        Delivery
-    </v-card-title >
+        <v-card-text>
+            <String label="OrderStatus" v-model="value.orderStatus" :editMode="editMode"/>
+            <String label="OrderAddress" v-model="value.orderAddress" :editMode="editMode"/>
+            <String label="ShopAddress" v-model="value.shopAddress" :editMode="editMode"/>
+            <String label="DeliveryStatus" v-model="value.deliveryStatus" :editMode="editMode"/>
+            <String label="DeliveryStatus" v-model="value.deliveryStatus" :editMode="editMode"/>
 
-    <v-card-text style = "margin-left:-15px; margin-top:10px;">
+        </v-card-text>
 
-          <div class="grey--text ml-4" v-if="editMode" style = "margin-top:-20px;">
-            <v-text-field label="OrderId" v-model="value.orderId"/>
-          </div>
-          <div class="grey--text ml-4" v-else>
-            OrderId :  {{value.orderId }}
-          </div>
+        <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+                    color="deep-purple lighten-2"
+                    text
+                    @click="edit"
+                    v-if="!editMode"
+            >
+                Edit
+            </v-btn>
+            <v-btn
+                    color="deep-purple lighten-2"
+                    text
+                    @click="save"
+                    v-else
+            >
+                Save
+            </v-btn>
+            <v-btn
+                    color="deep-purple lighten-2"
+                    text
+                    @click="remove"
+                    v-if="!editMode"
+            >
+                Delete
+            </v-btn>
+            <v-btn
+                    color="deep-purple lighten-2"
+                    text
+                    @click="editMode = false"
+                    v-if="editMode && !isNew"
+            >
+                Cancel
+            </v-btn>
+        </v-card-actions>
+        <v-card-actions>
+            <v-spacer></v-spacer>                        
+        </v-card-actions>
 
-
-          <div class="grey--text ml-4" v-if="editMode" style = "margin-top:-20px;">
-            <v-text-field type="number" label="Qty" v-model="value.qty"/>
-          </div>
-          <div class="grey--text ml-4" v-else>
-            Qty :  {{value.qty }}
-          </div>
-
-          <div class="grey--text ml-4" v-if="editMode" style = "margin-top:-20px;">
-            <v-text-field label="ProductId" v-model="value.productId"/>
-          </div>
-          <div class="grey--text ml-4" v-else>
-            ProductId :  {{value.productId }}
-          </div>
-
-
-          <div class="grey--text ml-4" v-if="editMode" style = "margin-top:-20px;">
-            <v-text-field label="Status" v-model="value.status"/>
-          </div>
-          <div class="grey--text ml-4" v-else>
-            Status :  {{value.status }}
-          </div>
-
-
-
-    </v-card-text>
-
-    <v-divider class="mx-4"></v-divider>
-
-    <v-card-actions style = "position:absolute; right:0; bottom:0;">
-      <v-btn
-        color="deep-purple lighten-2"
-        text
-        @click="edit"
-        v-if="!editMode"
-      >
-        Edit
-      </v-btn>
-      <v-btn
-        color="deep-purple lighten-2"
-        text
-        @click="save"
-        v-else
-      >
-        Save
-      </v-btn>
-      <v-btn
-        color="deep-purple lighten-2"
-        text
-        @click="remove"
-        v-if="!editMode"
-      >
-        Delete
-      </v-btn>
-      
-    </v-card-actions>
-  </v-card>
-
+        <v-snackbar
+                v-model="snackbar.status"
+                :top="true"
+                :timeout="snackbar.timeout"
+                color="error"
+        >
+            {{ snackbar.text }}
+            <v-btn dark text @click="snackbar.status = false">
+                Close
+            </v-btn>
+        </v-snackbar>
+    </v-card>
 
 </template>
 
 <script>
-  const axios = require('axios').default;
-  
-  
-  
-  
-  
-  export default {
-    name: 'Delivery',
-    components:{
-    },
-    props: {
-      value: Object,
-      editMode: Boolean,
-      isNew: Boolean
-    },
-    data: () => ({
-        date: new Date().toISOString().substr(0, 10),
-    }),
-    created(){
-    },
+    const axios = require('axios').default;
 
-    methods: {
-      edit(){
-        this.editMode = true;
-      },
-      async save(){
-        try{
-          var temp = null;
-          if(this.isNew){
-            temp = await axios.post(axios.fixUrl('/deliveries'), this.value)
-          }else{
-            temp = await axios.put(axios.fixUrl(this.value._links.self.href), this.value)
-          }
 
-          this.value = temp.data;
+    export default {
+        name: 'Delivery',
+        components:{
+        },
+        props: {
+            value: [Object, String, Number, Boolean, Array],
+            editMode: Boolean,
+            isNew: Boolean,
+            offline: Boolean,
+            childPath: String,
+        },
+        data: () => ({
+            snackbar: {
+                status: false,
+                timeout: 5000,
+                text: ''
+            },
+        }),
+        created(){
+        },
+        methods: {
+            selectFile(){
+            if(this.editMode == false) {
+                return false;
+            }
+                var me = this
+                var input = document.createElement("input");
+                input.type = "file";
+                input.accept = "image/*";
+                input.id = "uploadInput";
+                
+                input.click();
+                input.onchange = function (event) {
+                    var file = event.target.files[0]
+                    var reader = new FileReader();
 
-          this.editMode = false;
-          this.$emit('input', this.value);
+                    reader.onload = function () {
+                        var result = reader.result;
+                        me.imageUrl = result;
+                        me.value.photo = result;
+                        
+                    };
+                    reader.readAsDataURL( file );
+                };
+            },
+            edit() {
+                this.editMode = true;
+            },
+            async save(){
+                try {
+                    var temp = null;
 
-          if(this.isNew){
-            this.$emit('add', this.value);
-          }else{
-            this.$emit('edit', this.value);
-          }
+                    if(!this.offline) {
+                        if(this.isNew) {
+                            if(this.childPath) {
+                                temp = await axios.post(axios.fixUrl('/'+this.childPath), this.value)
+                            } else {
+                                temp = await axios.post(axios.fixUrl('/deliveries'), this.value)
+                            }
+                        } else {
+                            temp = await axios.put(axios.fixUrl(this.value._links.self.href), this.value)
+                        }
+                    }
 
-        }catch(e){
-          alert(e.message)
-        }
-      },
-      async remove(){
-        try{
-          await axios.delete(axios.fixUrl(this.value._links.self.href))
-          this.editMode = false;
-          this.isDeleted = true;
+                    if(this.value!=null) {
+                        for(var k in temp.data) this.value[k]=temp.data[k];
+                    } else {
+                        this.value = temp.data;
+                    }
 
-          this.$emit('input', this.value);
-          this.$emit('delete', this.value);
+                    this.editMode = false;
+                    this.$emit('input', this.value);
 
-        }catch(e){
-          alert(e.message)
-        }
-      },
-    },
-  }
+                    if (this.isNew) {
+                        this.$emit('add', this.value);
+                    } else {
+                        this.$emit('edit', this.value);
+                    }
+
+                    location.reload()
+
+                } catch(e) {
+                    this.snackbar.status = true
+                    this.snackbar.text = e
+                }
+                
+            },
+            async remove(){
+                try {
+                    if (!this.offline) {
+                        await axios.delete(axios.fixUrl(this.value._links.self.href))
+                    }
+
+                    this.editMode = false;
+                    this.isDeleted = true;
+
+                    this.$emit('input', this.value);
+                    this.$emit('delete', this.value);
+
+                } catch(e) {
+                    this.snackbar.status = true
+                    this.snackbar.text = e
+                }
+            },
+            change(){
+                this.$emit('input', this.value);
+            },
+        },
+    }
 </script>
 

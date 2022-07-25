@@ -9,12 +9,12 @@ Vue.config.productionTip = false;
 const axios = require("axios").default;
 
 // backend host url
-axios.backend = "http://localhost:8088";
+axios.backend = null; //"http://localhost:8088";
 
 // axios.backendUrl = new URL(axios.backend);
 axios.fixUrl = function(original){
 
-  if(!axios.backend) return original;
+  if(!axios.backend && original.indexOf("/")==0) return original;
 
   var url = null;
 
@@ -24,10 +24,10 @@ axios.fixUrl = function(original){
     url = new URL(axios.backend + original);
   }
 
-  //url.hostname = axios.backendUrl.hostname;
-  //url.port = axios.backendUrl.port;
-  url.hostname = "http://localhost";
-  url.port = 8088;
+  if(!axios.backend) return url.pathname;
+
+  url.hostname = axios.backendUrl.hostname;
+  url.port = axios.backendUrl.port;
 
   return url.href;
 }
@@ -46,9 +46,14 @@ const pluralCaseList = []
 
 pluralCaseList.push( {plural: "orders", pascal: "Order"} )
 
+pluralCaseList.push( {plural: "menus", pascal: "Menu"} )
 pluralCaseList.push( {plural: "deliveries", pascal: "Delivery"} )
 
-pluralCaseList.push( {plural: "inventories", pascal: "Inventory"} )
+
+pluralCaseList.push( {plural: "statusChecks", pascal: "StatusCheck"} )
+pluralCaseList.push( {plural: "payments", pascal: "Payment"} )
+
+pluralCaseList.push( {plural: "menus", pascal: "Menu"} )
 
 
 Vue.prototype.$ManagerLists.forEach(function(item, idx) {

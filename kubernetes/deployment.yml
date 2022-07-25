@@ -3,22 +3,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: order
+  name: Order
   labels:
-    app: order
+    app: Order
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: order
+      app: Order
   template:
     metadata:
       labels:
-        app: order
+        app: Order
     spec:
       containers:
-        - name: order
-          image: username/order:latest
+        - name: Order
+          image: username/Order:latest
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -43,22 +43,22 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: delivery
+  name: Delivery
   labels:
-    app: delivery
+    app: Delivery
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: delivery
+      app: Delivery
   template:
     metadata:
       labels:
-        app: delivery
+        app: Delivery
     spec:
       containers:
-        - name: delivery
-          image: username/delivery:latest
+        - name: Delivery
+          image: username/Delivery:latest
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -83,22 +83,102 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: product
+  name: management
   labels:
-    app: product
+    app: management
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: product
+      app: management
   template:
     metadata:
       labels:
-        app: product
+        app: management
     spec:
       containers:
-        - name: product
-          image: username/product:latest
+        - name: management
+          image: username/management:latest
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: '/actuator/health'
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: '/actuator/health'
+              port: 8080
+            initialDelaySeconds: 120
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 5
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: Payment
+  labels:
+    app: Payment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: Payment
+  template:
+    metadata:
+      labels:
+        app: Payment
+    spec:
+      containers:
+        - name: Payment
+          image: username/Payment:latest
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: '/actuator/health'
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: '/actuator/health'
+              port: 8080
+            initialDelaySeconds: 120
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 5
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: Store
+  labels:
+    app: Store
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: Store
+  template:
+    metadata:
+      labels:
+        app: Store
+    spec:
+      containers:
+        - name: Store
+          image: username/Store:latest
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -125,15 +205,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: order
+  name: Order
   labels:
-    app: order
+    app: Order
 spec:
   ports:
     - port: 8080
       targetPort: 8080
   selector:
-    app: order
+    app: Order
 
 
 ---
@@ -142,15 +222,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: delivery
+  name: Delivery
   labels:
-    app: delivery
+    app: Delivery
 spec:
   ports:
     - port: 8080
       targetPort: 8080
   selector:
-    app: delivery
+    app: Delivery
 
 
 ---
@@ -159,13 +239,47 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: product
+  name: management
   labels:
-    app: product
+    app: management
 spec:
   ports:
     - port: 8080
       targetPort: 8080
   selector:
-    app: product
+    app: management
+
+
+---
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: Payment
+  labels:
+    app: Payment
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: Payment
+
+
+---
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: Store
+  labels:
+    app: Store
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: Store
 
