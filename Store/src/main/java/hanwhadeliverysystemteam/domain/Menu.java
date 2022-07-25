@@ -25,7 +25,6 @@ public class Menu {
 
     private Integer orderId;
 
-    private String orderStatus;
 
     @PostPersist
     public void onPostPersist() {

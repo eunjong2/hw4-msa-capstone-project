@@ -13,7 +13,7 @@ public class PaymentCancelled extends AbstractEvent {
     private String orderId;
     private String paymentStatus;
     private Double price;
-    private Integer orderId;
+   
 
     public PaymentCancelled(Payment aggregate) {
         super(aggregate);

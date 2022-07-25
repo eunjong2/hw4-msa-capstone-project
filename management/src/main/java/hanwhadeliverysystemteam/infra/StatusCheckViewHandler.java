@@ -42,7 +42,7 @@ public class StatusCheckViewHandler {
         try {
             if (!cookStarted.validate()) return;
             // view 객체 조회
-
+            
             List<StatusCheck> statusCheckList = statusCheckRepository.findByOrderId(
                 cookStarted.getOrderId()
             );
@@ -88,7 +88,7 @@ public class StatusCheckViewHandler {
             // view 객체 조회
 
             List<StatusCheck> statusCheckList = statusCheckRepository.findByOrderId(
-                String.valueOf(menuCancelled.getOrderId())
+                menuCancelled.getOrderId()
             );
             for (StatusCheck statusCheck : statusCheckList) {
                 // view 객체에 이벤트의 eventDirectValue 를 set 함

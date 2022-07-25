@@ -10,10 +10,10 @@ import lombok.*;
 public class PaymentCancelled extends AbstractEvent {
 
     private Long id;
-    private String orderId;
+    private Integer orderId;
     private String paymentStatus;
     private Double price;
-    private Integer orderId;
+   
     // keep
 
 }

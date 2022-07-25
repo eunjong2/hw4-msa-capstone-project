@@ -11,7 +11,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 )
 public interface StatusCheckRepository
     extends PagingAndSortingRepository<StatusCheck, Long> {
-    List<StatusCheck> findByOrderId(String orderId);
+    List<StatusCheck> findByOrderId(Integer orderId);
     // keep
 
 }

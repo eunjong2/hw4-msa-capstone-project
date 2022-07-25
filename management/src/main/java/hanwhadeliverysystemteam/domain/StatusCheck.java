@@ -15,5 +15,5 @@ public class StatusCheck {
     private Long id;
 
     private String status;
-    private String orderId;
+    private Integer orderId;
 }

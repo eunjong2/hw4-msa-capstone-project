@@ -25,7 +25,6 @@ public class Delivery {
 
     private String deliveryStatus;
 
-    private String deliveryStatus;
 
     @PostPersist
     public void onPostPersist() {}

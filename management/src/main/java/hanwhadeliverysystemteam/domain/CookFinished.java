@@ -14,7 +14,7 @@ public class CookFinished extends AbstractEvent {
     private Integer qty;
     private Integer cookStatus;
     private Integer orderId;
-    private String orderStatus;
+    
     // keep
 
 }
