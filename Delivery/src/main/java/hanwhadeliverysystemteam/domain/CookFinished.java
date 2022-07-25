@@ -12,9 +12,13 @@ public class CookFinished extends AbstractEvent {
     private Long id;
     private String menuName;
     private Integer qty;
-    private Integer cookStatus;
-    private Integer orderId;
-    private String orderStatus;
+    private String cookStatus;
+    private Long orderId;
+    private Double price;
+    private String address;
+
+
+
     // keep
 
 }

@@ -33,8 +33,7 @@ tasks:
   - name: kafka-server 
     command: > 
       sudo -s &&
-      export JAVA_HOME=/usr/lib/jdk-16.0.2 &&
-      /usr/local/kafka/bin/kafka-server-start.sh /usr/local/kafka/config/server.properties
+mvn
 
   - name: kubectl
     command: >

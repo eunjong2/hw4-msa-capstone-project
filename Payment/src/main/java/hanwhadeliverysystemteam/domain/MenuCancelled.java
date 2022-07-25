@@ -15,6 +15,8 @@ public class MenuCancelled extends AbstractEvent {
     private String address;
     private Integer qty;
     private String orderStatus;
+    
+    private String cookStatus;
     // keep
 
 }

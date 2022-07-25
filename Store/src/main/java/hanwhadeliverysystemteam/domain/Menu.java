@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 @Entity
 @Table(name = "Menu_table")
@@ -23,16 +24,19 @@ public class Menu {
 
     private String cookStatus;
 
-    private Integer orderId;
+    private Long orderId;
+    private String address;
+    private Double price;
 
 
     @PostPersist
     public void onPostPersist() {
         CookStarted cookStarted = new CookStarted(this);
+        
         cookStarted.publishAfterCommit();
 
-        CookFinished cookFinished = new CookFinished(this);
-        cookFinished.publishAfterCommit();
+        // CookFinished cookFinished = new CookFinished(this);
+        // cookFinished.publishAfterCommit();
     }
 
     public static MenuRepository repository() {
@@ -41,13 +45,36 @@ public class Menu {
         );
         return menuRepository;
     }
+    public void accept() {
+        System.out.println("호출됨");
+        CookStarted cookStarted = new CookStarted(this);
+        
+        cookStarted.setCookStatus("Accepted");
+        
+        
+        cookStarted.publishAfterCommit();
+    }
 
+    
+    public void finish() {
+        CookFinished cookFinished = new CookFinished(this);
+        cookFinished.setCookStatus("Finished");
+        cookFinished.publishAfterCommit();
+    }
     public static void addOrderList(PaymentAgreed paymentAgreed) {
-        /** Example 1:  new item 
+      
+
         Menu menu = new Menu();
+        menu.setCookStatus(paymentAgreed.getPaymentStatus());
+        menu.setMenuName(paymentAgreed.getMenuName());
+        menu.setOrderId(paymentAgreed.getOrderId());
+        menu.setQty(paymentAgreed.getQty());
+        menu.setAddress(paymentAgreed.getAddress());
+        menu.setPrice(paymentAgreed.getPrice());
+
         repository().save(menu);
 
-        */
+        
 
         /** Example 2:  finding and process
         
@@ -69,16 +96,21 @@ public class Menu {
 
         */
 
-        /** Example 2:  finding and process
-        
-        repository().findById(paymentCancelled.get???()).ifPresent(menu->{
+        // Example 2:  finding and process
+ 
+        repository().findById(paymentCancelled.getOrderId()).ifPresent(menu->{
             
-            menu // do something
-            repository().save(menu);
+            //menu // do something
+            if("Ordered".equals(menu.getCookStatus()))
+            {
+
+             repository().delete(menu);
+            }
+            //repository().save(menu);
 
 
          });
-        */
+        
 
     }
 }

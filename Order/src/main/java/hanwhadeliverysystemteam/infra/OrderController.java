@@ -35,8 +35,8 @@ public class OrderController {
         optionalOrder.orElseThrow(() -> new Exception("No Entity Found"));
         Order order = optionalOrder.get();
         order.cancel();
-
-        orderRepository.save(order);
+        
+        orderRepository.delete(order);
         return order;
     }
 }

@@ -10,10 +10,18 @@ import lombok.*;
 public class PaymentAgreed extends AbstractEvent {
 
     private Long id;
-    private String orderId;
+
+    private Long orderId;
+
     private String paymentStatus;
+
     private Double price;
-   
+
+    private String menuName;
+
+    private Integer qty;
+    private String address;
+    
     // keep
 
 }

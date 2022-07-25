@@ -17,19 +17,27 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Integer orderId;
+    private Long orderId;
 
     private String paymentStatus;
-
+    private String address;
     private Double price;
+
+    private String menuName;
+
+    private Integer qty;
+
+    
+
+    
 
     @PostPersist
     public void onPostPersist() {
         PaymentAgreed paymentAgreed = new PaymentAgreed(this);
         paymentAgreed.publishAfterCommit();
 
-        PaymentCancelled paymentCancelled = new PaymentCancelled(this);
-        paymentCancelled.publishAfterCommit();
+        // PaymentCancelled paymentCancelled = new PaymentCancelled(this);
+        // paymentCancelled.publishAfterCommit();
     }
 
     public static PaymentRepository repository() {

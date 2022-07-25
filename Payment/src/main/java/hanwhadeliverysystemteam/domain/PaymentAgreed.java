@@ -11,10 +11,15 @@ public class PaymentAgreed extends AbstractEvent {
 
     private Long id;
     private Long orderId;
-    private String paymentStatus;
-    private Double price;
-  
 
+    private String paymentStatus;
+
+    private Double price;
+
+    private String menuName;
+
+    private Integer qty;
+    private String address;
     public PaymentAgreed(Payment aggregate) {
         super(aggregate);
     }

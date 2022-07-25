@@ -19,7 +19,7 @@ public class Order {
 
     private String menuName;
 
-    private Integer orderId;
+    private Long orderId;
 
     private String address;
 
@@ -28,6 +28,8 @@ public class Order {
     private String orderStatus;
     
     private Double price;
+
+    
 
     @PostPersist
     public void onPostPersist() {
@@ -44,6 +46,9 @@ public class Order {
         payment.setOrderId(menuOrdered.getOrderId());
         payment.setPaymentStatus("Ordered");
         payment.setPrice(menuOrdered.getPrice());
+        payment.setQty(menuOrdered.getQty());
+        payment.setMenuName(menuOrdered.getMenuName());
+        payment.setAddress(menuOrdered.getAddress());
 
         // mappings goes here
         OrderApplication.applicationContext
@@ -62,6 +67,9 @@ public class Order {
     }
     public void cancel() {
         MenuCancelled menuCancelled = new MenuCancelled(this);
+        // menuCancelled
+        
+        
         menuCancelled.publishAfterCommit();
     }
 }

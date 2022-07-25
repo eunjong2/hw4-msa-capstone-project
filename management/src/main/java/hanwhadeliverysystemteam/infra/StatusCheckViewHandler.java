@@ -48,9 +48,10 @@ public class StatusCheckViewHandler {
             );
             for (StatusCheck statusCheck : statusCheckList) {
                 // view 객체에 이벤트의 eventDirectValue 를 set 함
-                statusCheck.setStatus("CookStarted");
+                statusCheck.setStatus("Accepted");
                 // view 레파지 토리에 save
                 statusCheckRepository.save(statusCheck);
+                
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,7 +71,7 @@ public class StatusCheckViewHandler {
             );
             for (StatusCheck statusCheck : statusCheckList) {
                 // view 객체에 이벤트의 eventDirectValue 를 set 함
-                statusCheck.setStatus("CookFinished");
+                statusCheck.setStatus("Finished");
                 // view 레파지 토리에 save
                 statusCheckRepository.save(statusCheck);
             }
@@ -92,7 +93,7 @@ public class StatusCheckViewHandler {
             );
             for (StatusCheck statusCheck : statusCheckList) {
                 // view 객체에 이벤트의 eventDirectValue 를 set 함
-                statusCheck.setStatus("MenuCancelled");
+                statusCheck.setStatus("CANCELLED");
                 // view 레파지 토리에 save
                 statusCheckRepository.save(statusCheck);
             }

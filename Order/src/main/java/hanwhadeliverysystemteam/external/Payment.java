@@ -7,9 +7,18 @@ import lombok.Data;
 public class Payment {
 
     private Long id;
-    private Integer orderId;
+    private Long orderId;
     private String paymentStatus;
     private Double price;
+
+    private String menuName;
+
+    private Integer qty;
+
+    private String cookStatus;
+    private String address;
+
+    
     // keep
 
 }

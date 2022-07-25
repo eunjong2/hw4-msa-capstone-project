@@ -12,9 +12,11 @@ public class CookStarted extends AbstractEvent {
     private Long id;
     private String menuName;
     private Integer qty;
-    private Integer cookStatus;
-    private Integer orderId;
-    private String orderStatus;
+    private String cookStatus;
+    private Long orderId;
+    private String address;
+    private Double price;
+    
 
     public CookStarted(Menu aggregate) {
         super(aggregate);

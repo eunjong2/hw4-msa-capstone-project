@@ -18,11 +18,11 @@ public class Delivery {
     private Long id;
 
     private String orderStatus;
-
-    private String orderAddress;
-
-    private String shopAddress;
-
+    private Long orderId;
+    private String menuName;
+    private Integer qty;
+    private Double price;
+    private String address;
     private String deliveryStatus;
 
 
@@ -34,8 +34,8 @@ public class Delivery {
         DeliveryStarted deliveryStarted = new DeliveryStarted(this);
         deliveryStarted.publishAfterCommit();
 
-        DeliveryCompleted deliveryCompleted = new DeliveryCompleted(this);
-        deliveryCompleted.publishAfterCommit();
+        // DeliveryCompleted deliveryCompleted = new DeliveryCompleted(this);
+        // deliveryCompleted.publishAfterCommit();
     }
 
     public static DeliveryRepository repository() {
@@ -46,11 +46,23 @@ public class Delivery {
     }
 
     public static void addDeliveryList(CookFinished cookFinished) {
-        /** Example 1:  new item 
+        // Example 1:  new item 
         Delivery delivery = new Delivery();
+
+
+        delivery.setOrderStatus(cookFinished.getCookStatus());
+        delivery.setOrderId(cookFinished.getOrderId());
+        delivery.setPrice(cookFinished.getPrice());
+        delivery.setMenuName(cookFinished.getMenuName());
+        delivery.setAddress(cookFinished.getAddress());
+        delivery.setQty(cookFinished.getQty());
+        
+        
+        
+
         repository().save(delivery);
 
-        */
+        
 
         /** Example 2:  finding and process
         

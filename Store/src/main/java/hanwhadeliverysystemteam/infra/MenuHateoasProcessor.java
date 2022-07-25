@@ -10,8 +10,20 @@ import org.springframework.stereotype.Component;
 public class MenuHateoasProcessor
     implements RepresentationModelProcessor<EntityModel<Menu>> {
 
-    @Override
-    public EntityModel<Menu> process(EntityModel<Menu> model) {
-        return model;
-    }
+        @Override
+        public EntityModel<Menu> process(EntityModel<Menu> model) {
+            model.add(
+                Link
+                    .of(model.getRequiredLink("self").getHref() + "/accept")
+                    .withRel("accept")
+            );
+         
+            model.add(
+                Link
+                    .of(model.getRequiredLink("self").getHref() + "/finish")
+                    .withRel("finish")
+            );
+    
+            return model;
+        }
 }
