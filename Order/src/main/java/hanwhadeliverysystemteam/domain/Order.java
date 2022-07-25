@@ -26,23 +26,32 @@ public class Order {
     private Integer qty;
 
     private String orderStatus;
+    
+    private Double price;
 
     @PostPersist
     public void onPostPersist() {
-        MenuCancelled menuCancelled = new MenuCancelled(this);
-        menuCancelled.publishAfterCommit();
+        // MenuCancelled menuCancelled = new MenuCancelled(this);
+        // menuCancelled.publishAfterCommit();
+
 
         //Following code causes dependency to external APIs
         // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
-
+        MenuOrdered menuOrdered = new MenuOrdered(this);
+        menuOrdered.publishAfterCommit();
+        
         hanwhadeliverysystemteam.external.Payment payment = new hanwhadeliverysystemteam.external.Payment();
+        payment.setOrderId(menuOrdered.getOrderId());
+        payment.setPaymentStatus("Ordered");
+        payment.setPrice(menuOrdered.getPrice());
+
         // mappings goes here
         OrderApplication.applicationContext
             .getBean(hanwhadeliverysystemteam.external.PaymentService.class)
             .pay(payment);
 
-        MenuOrdered menuOrdered = new MenuOrdered(this);
-        menuOrdered.publishAfterCommit();
+        // MenuOrdered menuOrdered = new MenuOrdered(this);
+        // menuOrdered.publishAfterCommit();
     }
 
     public static OrderRepository repository() {
@@ -50,5 +59,9 @@ public class Order {
             OrderRepository.class
         );
         return orderRepository;
+    }
+    public void cancel() {
+        MenuCancelled menuCancelled = new MenuCancelled(this);
+        menuCancelled.publishAfterCommit();
     }
 }

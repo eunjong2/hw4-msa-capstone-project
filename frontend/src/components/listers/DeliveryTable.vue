@@ -71,7 +71,6 @@
                     { text: "orderAddress", value: "orderAddress" },
                     { text: "shopAddress", value: "shopAddress" },
                     { text: "deliveryStatus", value: "deliveryStatus" },
-                    { text: "deliveryStatus", value: "deliveryStatus" },
                 ],
             delivery : [],
             newValue: {},
@@ -93,7 +92,7 @@
                 'orderAddress': '',
                 'shopAddress': '',
                 'deliveryStatus': '',
-                'deliveryStatus': '',
+
             }
         },
         methods: {

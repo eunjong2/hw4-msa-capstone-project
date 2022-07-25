@@ -15,6 +15,7 @@ public class MenuOrdered extends AbstractEvent {
     private String address;
     private Integer qty;
     private String orderStatus;
+    private Double price;
 
     public MenuOrdered(Order aggregate) {
         super(aggregate);

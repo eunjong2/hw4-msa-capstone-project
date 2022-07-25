@@ -18,4 +18,25 @@ public class OrderController {
     @Autowired
     OrderRepository orderRepository;
     // keep
+
+    @RequestMapping(
+        value = "orders/{id}/cancel",
+        method = RequestMethod.PUT,
+        produces = "application/json;charset=UTF-8"
+    )
+    public Order cancel(
+        @PathVariable(value = "id") Long id,
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) throws Exception {
+        System.out.println("##### /order/cancel  called #####");
+        Optional<Order> optionalOrder = orderRepository.findById(id);
+
+        optionalOrder.orElseThrow(() -> new Exception("No Entity Found"));
+        Order order = optionalOrder.get();
+        order.cancel();
+
+        orderRepository.save(order);
+        return order;
+    }
 }

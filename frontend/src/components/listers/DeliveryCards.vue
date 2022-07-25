@@ -74,7 +74,7 @@
                 'orderAddress': '',
                 'shopAddress': '',
                 'deliveryStatus': '',
-                'deliveryStatus': '',
+                
             }
         },
         methods:{

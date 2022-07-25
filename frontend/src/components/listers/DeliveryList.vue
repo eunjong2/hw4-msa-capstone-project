@@ -23,7 +23,7 @@
                             [ OrderAddress :  {{data.orderAddress }} ] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             [ ShopAddress :  {{data.shopAddress }} ] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             [ DeliveryStatus :  {{data.deliveryStatus }} ] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            [ DeliveryStatus :  {{data.deliveryStatus }} ] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            
                         </v-list-item-subtitle>
 
                     </v-list-item-content>
@@ -109,7 +109,7 @@
                 'orderAddress': '',
                 'shopAddress': '',
                 'deliveryStatus': '',
-                'deliveryStatus': '',
+                
             }
         },
         methods: {
