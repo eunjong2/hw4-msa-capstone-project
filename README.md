@@ -56,11 +56,216 @@
 
 - Request / Response (Feign Client / Sync.Async)
 
-- Gateway
+## Gateway
+- Gateway를 통해 Endpoint의 요청을 받고 API Service에게 라우팅해준다.<br>
+라우팅 정보는 application.yaml에서 확인한다.
+```diff
+spring:
+  profiles: docker
+  cloud:
+    gateway:
++      routes:
+        - id: Order
+          uri: http://order:8080
+          predicates:
+            - Path=/orders/** /menus/**
+        - id: Delivery
+          uri: http://delivery:8080
+          predicates:
+            - Path=/deliveries/** 
+        - id: management
+          uri: http://management:8080
+          predicates:
+            - Path= /statusChecks/**
+        - id: Payment
+          uri: http://payment:8080
+          predicates:
+            - Path=/payments/** 
+        - id: Store
+          uri: http://store:8080
+          predicates:
+            - Path=/menus/** 
+        - id: frontend
+          uri: http://frontend:8080
+          predicates:
+            - Path=/**
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
 
-- Deploy / Pipeline
++server:
+  port: 8080
 
-- Circuit Breaker
+```
+
+## Deploy
+- deploy 테스트를 위한 k8s pod 생성 
+> kind Type 확인 : Deployment, Service <br>
+Service Type 확인 : LoadBalancer
+
+```diff
+apiVersion: apps/v1
++ kind: Deployment
+metadata:
+  name: gateway
+  labels:
+    app: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+        - name: gateway
+          image: eunjong4421/gateway:v2
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
++kind: Service
+metadata:
+  name: gateway
+  labels:
+    app: gateway
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: gateway
++  type: LoadBalancer
+
+```
+* deploy 생성
+```diff
+kubectl apply -f deployment.yaml
+```
+## Circuit Breaker
+* DestinationRule 생성
+```diff
+kubectl apply -f - << EOF
++  apiVersion: networking.istio.io/v1alpha3
+  kind: DestinationRule
+  metadata:
+    name: delivery
+  spec:
+    host: delivery
+-    trafficPolicy:
+-      outlierDetection:
+-        consecutive5xxErrors: 1
+-        interval: 1s
+-        baseEjectionTime: 3m
+-        maxEjectionPercent: 100
+EOF
+```
+
++ Circuit Breaker 테스트 환경설정(`replicas=3`)
+
+```
+kubectl scale deploy delivery --replicas=3
+```
++ 새 터미널에서 Http Client 컨테이너를 설치하고, 접속한다.
+```
+kubectl create deploy siege --image=ghcr.io/acmexii/siege-nginx:latest
+kubectl exec -it pod/siege-75d5587bf6-29djk -- /bin/bash
+```
++ Circuit Breaker 동작 확인
+```diff
++root@siege-75d5587bf6-29djk :/# http http://delivery:8080/actuator/echo
+- HTTP/1.1 200 OK
+root@siege-75d5587bf6-29djk:/# http http://delivery:8080/actuator/echo
+HTTP/1.1 200 
+Content-Length: 40
+Content-Type: text/plain;charset=UTF-8
+Date: Tue, 26 Jul 2022 23:43:13 GMT
+
+delivery-67ff6476bb-b26jk/192.168.45.193
+
+root@siege-75d5587bf6-29djk:/# http http://delivery:8080/actuator/echo
+HTTP/1.1 200 
+Content-Length: 38
+Content-Type: text/plain;charset=UTF-8
+Date: Tue, 26 Jul 2022 23:43:19 GMT
+
+delivery-67ff6476bb-skcsw/192.168.78.4
+
+root@siege-75d5587bf6-29djk:/# http http://delivery:8080/actuator/echo
+HTTP/1.1 200 
+Content-Length: 39
+Content-Type: text/plain;charset=UTF-8
+Date: Tue, 26 Jul 2022 23:43:22 GMT
+
+delivery-67ff6476bb-w5gpw/192.168.22.82
+
+```
++ 새로운 터미널에서 마지막에 출력된 delivery 컨테이너로 접속하여 명시적으로 5xx 오류를 발생 시킨다.
+
+```diff
+# 새로운 터미널 Open
+# 3개 중 하나의 컨테이너에 접속
+kubectl exec -it pod/delivery-67ff6476bb-w5gpw -c delivery -- /bin/sh
+#
+# httpie 설치 및 서비스 명시적 다운
+apk update
+apk add httpie
+- http PUT http://localhost:8080/actuator/down
+```
++ Siege로 접속한 이전 터미널에서 delivery 서비스로 접속해 3회 이상 호출해 본다.
+```
+http GET http://delivery:8080/actuator/health
+```
++ 아래 URL을 통해 3개 중 `2개`의 컨테이너만 서비스 됨을 확인한다.
+
+```diff
+
++ h-taxi-grap-67ff6476bb-6rzwc/192.168.82.161
+
+root@siege-75d5587bf6-29djk:/# http http://delivery:8080/actuator/echo
+HTTP/1.1 200 
+Content-Length: 39
+Content-Type: text/plain;charset=UTF-8
+Date: Tue, 26 Jul 2022 23:43:22 GMT
+
+-delivery-67ff6476bb-w5gpw/192.168.22.82
+
+root@siege-75d5587bf6-29djk:/# http http://delivery:8080/actuator/echo
+HTTP/1.1 200 
+Content-Length: 39
+Content-Type: text/plain;charset=UTF-8
+Date: Tue, 26 Jul 2022 23:45:47 GMT
+
++delivery-67ff6476bb-w5gpw/192.168.22.82
+
+
+root@siege-75d5587bf6-29djk:/# http http://delivery:8080/actuator/echo
+HTTP/1.1 200 
+Content-Length: 38
+Content-Type: text/plain;charset=UTF-8
+Date: Tue, 26 Jul 2022 23:45:52 GMT
+
+-delivery-67ff6476bb-skcsw/192.168.78.4
+
+root@siege-75d5587bf6-29djk:/# http http://delivery:8080/actuator/echo
+HTTP/1.1 200 
+Content-Length: 38
+Content-Type: text/plain;charset=UTF-8
+Date: Tue, 26 Jul 2022 23:45:55 GMT
+
++delivery-67ff6476bb-skcsw/192.168.78.4
+```	
+
 
 - Autoscale(HPA)
 
