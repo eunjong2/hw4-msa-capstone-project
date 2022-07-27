@@ -451,7 +451,6 @@ http GET http://delivery:8080/actuator/health
 
 ```diff
 
-+ h-taxi-grap-67ff6476bb-6rzwc/192.168.82.161
 
 root@siege-75d5587bf6-29djk:/# http http://delivery:8080/actuator/echo
 HTTP/1.1 200 
@@ -948,7 +947,7 @@ $ kubectl expose pod mysql --port=3306
 ```
 
 
--   Pod 에 접속하여 h-taxi-db 데이터베이스 공간을 만들어주고 데이터베이스가 잘 동작하는지 확인
+-   Pod 에 접속하여 hanwhaDeliverySystem 데이터베이스 공간을 만들어주고 데이터베이스가 잘 동작하는지 확인
 ```diff
 # mysql Pod 접속
 $ kubectl exec mysql -it -- bash
