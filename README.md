@@ -17,8 +17,10 @@
 
 ### 이벤트 스토밍
 - 최종 이벤트 스토밍 결과
+<img width="1469" alt="스크린샷 2022-07-26 오전 9 29 46" src="https://user-images.githubusercontent.com/31244884/181143461-14e0b946-f237-49bd-9081-8ddc20b82ef2.png">
 
 - Order
+<img width="1469" alt="EventStorming_Order" src="https://user-images.githubusercontent.com/31244884/181143488-4eb3b831-31a6-445f-bfbc-6f28400a462c.png">
 ```
 - 고객이 메뉴를 선택하여 주문한다.
 - 고객이 결제한다.
@@ -31,6 +33,8 @@
 ```
 
 - Cancel
+<img width="1469" alt="EventStorming_Cancel" src="https://user-images.githubusercontent.com/31244884/181143520-c731acc6-0d24-4a2b-9452-2ab4b92098cc.png">
+
 ```
 - 고객이 주문을 취소할수 있다.
 - 주문이 취소되면 결제가 취소되고 상점에도 취소된다.(단, 취소는 상태가 "Ordered"의 경우에만 가능하다.)
