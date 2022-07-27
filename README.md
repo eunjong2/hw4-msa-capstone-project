@@ -1,6 +1,11 @@
 
 
-# 주문 배달 서비스
+# Hanwha Delivery system
+
+#### 팀장 : 김은종 대리(디지털워크그룹)<br>
+#### 팀원 : 최수빈 사원(빅데이터팀), 윤영진 대리(디지털에셋그룹)
+---
+
 
 ## 분석설계
 ### 서비스 시나리오
@@ -80,7 +85,7 @@
 ```
 
 + DDD적용<p>
-    5개의 도메인으로 관리되고 있으며 `주문(Order)`, `결제(Payment)`, `상점(Store)`, `배송(Delivery)`, `관리(management)`로 구성된다.
+    6개의 도메인으로 관리되고 있으며 `주문(Order)`, `결제(Payment)`, `상점(Store)`, `배송(Delivery)`, `관리(management)`, `프론트엔드로(frontend)` 구성된다.
  
 ```diff
     	
@@ -880,7 +885,7 @@ Longest transaction:            0.80
 Shortest transaction:           0.01
 ```
 
-## Config Map / Persistence Volume
+## Config Map / Persistence Volume / Polyglot
 -   PVC 생성
 ```sh
 kubectl apply -f - << EOF
@@ -1054,5 +1059,5 @@ mysql> show databases;
 
 mysql> exit
 ```
+* polyglot의 경우 DB를 mysql 외 다른 DB 적용 혹은 서비스 모듈을 다른 언어로 변경해 배포하여 테스트 가능하다.(추후 적용 예정)
 
-## Polyglot
