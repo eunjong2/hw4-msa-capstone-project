@@ -16,22 +16,41 @@ spec:
     spec:
       containers:
         - name: order
-          image: eunjong4421/order:v3
+          image: sbchoi29/order:memleak #eunjong4421/order:v2
           ports:
             - containerPort: 8080
-          # readinessProbe:
-          #   httpGet:
-          #     path: '/actuator/health'
-          #     port: 8080
-          #   initialDelaySeconds: 10
-          #   timeoutSeconds: 2
-          #   periodSeconds: 5
-          #   failureThreshold: 10
-          # livenessProbe:
-          #   httpGet:
-          #     path: '/actuator/health'
-          #     port: 8080
-          #   initialDelaySeconds: 120
-          #   timeoutSeconds: 2
-          #   periodSeconds: 5
-          #   failureThreshold: 5
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 200m
+          readinessProbe:
+            httpGet:
+              path: '/orders'
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: '/actuator/health'
+              port: 8080
+            initialDelaySeconds: 120
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 5
+          env:
+            - name: superuser.userId
+              value: userId
+            - name: _DATASOURCE_ADDRESS
+              value: mysql
+            - name: _DATASOURCE_TABLESPACE
+              value: orderdb
+            - name: _DATASOURCE_USERNAME
+              value: root
+            - name: _DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-pass
+                  key: password
