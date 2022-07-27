@@ -146,20 +146,6 @@ public class Order {
 * 결제서비스를 호출하기위해 FeinClient를 이용하여 인터페이스(Proxy)를 구현한다.
 * 주문을 받은 직후(`@PostPersist`) 결제를 요청하도록 처리한다.
 ```
-// PaymentService.java
-
-package hanwhadeliverysystemteam.external;
-
-import ...
-
-@FeignClient(name = "Payment", url = "${api.url.Payment}")
-public interface PaymentService {
-    @RequestMapping(method = RequestMethod.POST, path = "/payments")
-    public void pay(@RequestBody Payment payment);
-    // keep
-
-} 
-```
 
 ## CQRS Pattern
 * `주문(Order)`, `결제(Payment)` 서비스 실행
@@ -265,6 +251,29 @@ mvn spring-boot:run
 
 ## Correlation / Compensation(Unique Key)
 
+## Req / Resp (feign client)
+
+* Interface 선언을 통해 자동으로 Http Client 생성
+* Annotation만으로 Http Client를 만들수 있고, 이를 통해서 원격의 Http API호출이 가능
+<br>
+
+* Dependency 추가
+```
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+</dependency>
+```
+* FeignClient Interface
+```
+@FeignClient(name = "Payment", url = "${api.url.Payment}")
+public interface PaymentService {
+    @RequestMapping(method = RequestMethod.POST, path = "/payments")
+    public void pay(@RequestBody Payment payment);
+    // keep
+
+}
+```
 
 ## Gateway
 - Gateway를 통해 Endpoint의 요청을 받고 API Service에게 라우팅해준다.<br>
