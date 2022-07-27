@@ -33,10 +33,11 @@ public class PolicyHandler {
         System.out.println(
             "\n\n##### listener CancelPayment : " + menuCancelled + "\n\n"
         );
-
-        // Sample Logic //
-        Payment.cancelPayment(event);
+        String orderStatus = event.getOrderStatus();
+        if(!"Accepted".equals(orderStatus) || "Finished".equals(orderStatus)){
+            Payment.cancelPayment(event);
+        }
     }
-    // keep
+
 
 }

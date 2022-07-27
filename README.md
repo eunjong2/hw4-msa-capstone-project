@@ -254,6 +254,25 @@ mvn spring-boot:run
 
 ## Correlation / Compensation(Unique Key)
 
+* 주문 성공 후, 주문 취소 시 서비스 간 이벤스간 이벤트 수신을 통해 주문 취소 구현
+* 주문 취소 -> 결제 취소 (단, 주문 상태 확인 필요)
+
+```
+    public void wheneverMenuCancelled_CancelPayment(
+        @Payload MenuCancelled menuCancelled
+    ) {
+        MenuCancelled event = menuCancelled;
+        System.out.println(
+            "\n\n##### listener CancelPayment : " + menuCancelled + "\n\n"
+        );
+        String orderStatus = event.getOrderStatus();
+        if(!"Accepted".equals(orderStatus) || "Finished".equals(orderStatus)){
+            Payment.cancelPayment(event);
+        }
+    }
+
+```
+
 ## Req / Resp (feign client)
 
 * Interface 선언을 통해 자동으로 Http Client 생성
