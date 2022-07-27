@@ -376,6 +376,121 @@ Date: Tue, 26 Jul 2022 23:45:55 GMT
 ## Autoscale(HPA)
 
 ## Self-Healing(Liveness Probe)
+- 메모리 부하 테스트를 위한 코드 수정
+```java
+# OrderController.java
+import java.lang.reflect.Field;
+import sun.misc.Unsafe;
+
+@RestController
+// @RequestMapping(value="/orders")
+@Transactional
+public class OrderController {
+	...
+    @GetMapping("/callMemleak")
+    public void callMemleak() {
+        try{
+            this.memLeak();
+        }catch (Exception e)
+            e.printStackTrace();
+        }
+    }
+
+    public void memLeak() throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException 
+        Class unsafeClass = Class.forName("sun.misc.Unsafe");
+        Field f = unsafeClass.getDeclaredField("theUnsafe");
+        f.setAccessible(true);
+        Unsafe unsafe = (Unsafe) f.get(null);
+        System.out.print("4..3..2..1...")
+        try
+        {
+            for(;;)
+            unsafe.allocateMemory(1024*1024);
+        } catch(Error e) {
+            System.out.println("Boom :)");
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+- 패키지 생성 및 도커 push
+```sh
+# 패키지 생성
+$ mvn package -B
+
+# docker push
+$ docker build -t sbchoi29/order:memleak .
+$ docker push sbchoi29/order:memleak
+```
+
+- deployment.yaml 수정
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order
+  labels:
+    app: order
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order
+  template:
+    metadata:
+      labels:
+        app: order
+    spec:
+      containers:
+        - name: order
+          image: sbchoi29/order:memleak #eunjong4421/order:v2
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: '/orders'
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: '/actuator/health'
+              port: 8080
+            initialDelaySeconds: 120
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 5
+```
+
+- deployment 배포
+```sh
+$ kubectl apply -f Order/kubernetes/deployment.yaml
+```
+
+- livenessProbe 작동 여부를 확인하기 위해 watch명령어로 pod 상태를 확인한다.
+```sh
+$ watch kubectl get pod -w
+```
+
+- siege에서 메모리 부하 명령어를 수행
+```sh
+$ kubectl exec -it siege -- /bin/bash
+
+# http http://order:8080/orders
+# http http://order:8080/callMemleak
+```
+
+- Restarts 카운트가 0에서 1로 증가하는 것을 확인
+```sh
+NAME                       READY   STATUS    RESTARTS   AGE
+order-56769458b8-8mk2f     1/1     Running   1          15m
+payment-58cb577dc9-t9h8v   1/1     Running   0          17h
+siege                      1/1     Running   0          16h
+```
+
 
 ## Zero-Downtime Deploy(Readiness Probe)
 - 부하 테스트를 위한 siege 생성
