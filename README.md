@@ -545,7 +545,7 @@ Shortest transaction:           0.00
 ```
 
 - 아래와 같이 order pod 개수가 3개로 늘어난 것을 확인
-```sh
+```diff
 $ kubectl get pod
   NAME                       READY   STATUS    RESTARTS   AGE
   my-kafka-0                 1/1     Running   2          18h
@@ -561,7 +561,7 @@ $ kubectl get pod
 ```
 
 - cpu값 늘어난 것을 확인 가능
-```sh
+```diff
 $ kubectl get hpa
   NAME    REFERENCE          TARGETS    MINPODS   MAXPODS   REPLICAS   AGE
 + order   Deployment/order   122%/20%   1         3         3          6m54s
