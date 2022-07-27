@@ -48,7 +48,112 @@
 	- Eventual Consistency 를 기본으로 채택함.
 ```
 
-- SAGA Pattern
+# SAGA
++ 구현<p>
+    서비스를 Local에서 아래와 같은 방법으로 서비스별로 개별적으로 실행한다.
+   
+```
+    cd Order
+    mvn spring-boot:run
+```
+```
+    cd Payment
+    mvn spring-boot:run 
+```
+```
+    cd Store
+    mvn spring-boot:run  
+```
+```
+    cd Delivery
+    mvn spring-boot:run  
+```
+```
+    cd management
+    mvn spring-boot:run
+```
+
++ DDD적용<p>
+    5개의 도메인으로 관리되고 있으며 `주문(Order)`, `결제(Payment)`, `상점(Store)`, `배송(Delivery)`, `관리(management)`로 구성된다.
+ 
+```diff
+    	
+@Entity
+@Table(name = "Order_table")
+@Data
+public class Order {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    private String menuName;
+    private Long orderId;
+    private String address;
+    private Integer qty;
+    private String orderStatus;
+    private Double price;
+
++    @PostPersist
+    public void onPostPersist() {
+        // MenuCancelled menuCancelled = new MenuCancelled(this);
+        // menuCancelled.publishAfterCommit();
+
+        //Following code causes dependency to external APIs
+        // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
+        MenuOrdered menuOrdered = new MenuOrdered(this);
+        menuOrdered.publishAfterCommit();
+        
++        hanwhadeliverysystemteam.external.Payment payment = new hanwhadeliverysystemteam.external.Payment();
+        payment.setOrderId(menuOrdered.getOrderId());
+        payment.setPaymentStatus("Ordered");
+        payment.setPrice(menuOrdered.getPrice());
+        payment.setQty(menuOrdered.getQty());
+        payment.setMenuName(menuOrdered.getMenuName());
+        payment.setAddress(menuOrdered.getAddress());
+
+        // mappings goes here
+        OrderApplication.applicationContext
+            .getBean(hanwhadeliverysystemteam.external.PaymentService.class)
+            .pay(payment);
+
+        // MenuOrdered menuOrdered = new MenuOrdered(this);
+        // menuOrdered.publishAfterCommit();
+    }
+
+    public static OrderRepository repository() {
+        OrderRepository orderRepository = OrderApplication.applicationContext.getBean(
+            OrderRepository.class
+        );
+        return orderRepository;
+    }
+    public void cancel() {
+        MenuCancelled menuCancelled = new MenuCancelled(this);
+        // menuCancelled      
+        menuCancelled.publishAfterCommit();
+    }
+}
+```
+   
++ 서비스 호출흐름(Sync)<p>
+`주문(Order)` -> `결제(Payment)`간 호출은 동기식으로 일관성을 유지하는 트랜젝션으로 처리
+* 고객이 메뉴를 선택하고 주문을 요청한다.
+* 결제서비스를 호출하기위해 FeinClient를 이용하여 인터페이스(Proxy)를 구현한다.
+* 주문을 받은 직후(`@PostPersist`) 결제를 요청하도록 처리한다.
+```
+// PaymentService.java
+
+package hanwhadeliverysystemteam.external;
+
+import ...
+
+@FeignClient(name = "Payment", url = "${api.url.Payment}")
+public interface PaymentService {
+    @RequestMapping(method = RequestMethod.POST, path = "/payments")
+    public void pay(@RequestBody Payment payment);
+    // keep
+
+} 
+```
 
 - CQRS Pattern
 
