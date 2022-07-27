@@ -21,6 +21,7 @@
 
 - Order
 <img width="1469" alt="EventStorming_Order" src="https://user-images.githubusercontent.com/31244884/181143488-4eb3b831-31a6-445f-bfbc-6f28400a462c.png">
+
 ```
 - 고객이 메뉴를 선택하여 주문한다.
 - 고객이 결제한다.
