@@ -4,7 +4,7 @@
 
 ## 분석설계
 ### 서비스 시나리오
-1.  고객이 메뉴를 선택하여 주문한다
+1. 고객이 메뉴를 선택하여 주문한다
 2. 고객이 결제한다
 3. 결제가 완료되면 상점 주문 내역에 저장된다
 4. 고객이 주문을 취소할 수 있다.
@@ -33,7 +33,8 @@
 - Cancel
 ```
 - 고객이 주문을 취소할수 있다.
-- 주문이 취소되면 결제가 취소되고 상점에도 취소된다?
+- 주문이 취소되면 결제가 취소되고 상점에도 취소된다.(단, 취소는 상태가 "Ordered"의 경우에만 가능하다.)
+- 상태(Ordered, Accpeted, Finished)
 ```
 
 - 트랜잭션 처리
@@ -48,7 +49,7 @@
 	- Eventual Consistency 를 기본으로 채택함.
 ```
 
-# SAGA
+## SAGA
 + 구현<p>
     서비스를 Local에서 아래와 같은 방법으로 서비스별로 개별적으로 실행한다.
    
@@ -155,11 +156,11 @@ public interface PaymentService {
 } 
 ```
 
-- CQRS Pattern
+## CQRS Pattern
 
-- Correlation / Compensation(Unique Key)
 
-- Request / Response (Feign Client / Sync.Async)
+## Correlation / Compensation(Unique Key)
+
 
 ## Gateway
 - Gateway를 통해 Endpoint의 요청을 받고 API Service에게 라우팅해준다.<br>
@@ -372,12 +373,12 @@ Date: Tue, 26 Jul 2022 23:45:55 GMT
 ```	
 
 
-- Autoscale(HPA)
+## Autoscale(HPA)
 
-- Self-Healing(Liveness Probe)
+## Self-Healing(Liveness Probe)
 
-- Zero-Downtime Deploy(Readiness Probe)
+## Zero-Downtime Deploy(Readiness Probe)
 
-- Config Map / Persistence Volume
+## Config Map / Persistence Volume
 
-- Polyglot
+## Polyglot
