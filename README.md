@@ -378,6 +378,172 @@ Date: Tue, 26 Jul 2022 23:45:55 GMT
 ## Self-Healing(Liveness Probe)
 
 ## Zero-Downtime Deploy(Readiness Probe)
+- 부하 테스트를 위한 siege 생성
+```sh
+$ kubectl apply -f - <<EOF
+> apiVersion: v1
+> kind: Pod
+> metadata:
+>   name: siege
+> spec:
+>   containers:
+>   - name: siege
+>     image: apexacme/siege-nginx
+> EOF
+pod/siege created
+```
+
+- siege 작동 확인
+```sh
+# siege 실행
+$ kubectl exec -it siege -- /bin/bas
+
+# siege 정상 작동 확인
+root@siege:/# siege -c1 -t2S -v http://order:8080/orders
+** SIEGE 4.0.4
+** Preparing 1 concurrent users for battle.
+The server is now under siege...
+HTTP/1.1 200     0.84 secs:     301 bytes ==> GET  /orders
+HTTP/1.1 200     0.02 secs:     301 bytes ==> GET  /orders
+HTTP/1.1 200     0.02 secs:     301 bytes ==> GET  /orders
+HTTP/1.1 200     0.02 secs:     301 bytes ==> GET  /orders
+HTTP/1.1 200     0.02 secs:     301 bytes ==> GET  /orders
+HTTP/1.1 200     0.02 secs:     301 bytes ==> GET  /orders
+HTTP/1.1 200     0.02 secs:     301 bytes ==> GET  /orders
+HTTP/1.1 200     0.02 secs:     301 bytes ==> GET  /orders
+HTTP/1.1 200     0.02 secs:     301 bytes ==> GET  /orders
+HTTP/1.1 200     0.02 secs:     301 bytes ==> GET  /orders
+HTTP/1.1 200     0.02 secs:     301 bytes ==> GET  /orders
+
+Lifting the server siege...
+Transactions:                     11 hits
+Availability:                 100.00 %
+Elapsed time:                   1.04 secs
+Data transferred:               0.00 MB
+Response time:                  0.09 secs
+Transaction rate:              10.58 trans/sec
+Throughput:                     0.00 MB/sec
+Concurrency:                    1.00
+Successful transactions:          11
+Failed transactions:               0
+Longest transaction:            0.84
+Shortest transaction:           0.02
+```
+
+- readinessProbe 추가 전 부하 테스트 진행
+	- siege 내부에서 먼저 부하 수행 명령어를 수행한 후 
+	- 다른 터미널에서 배포를 진행하여 부하를 확인한다.
+```sh
+# 부하 테스트
+root@siege:/# siege -c1 -t60S -v http://order:8080/orders --delay=1S
+
+# 배포한다
+$ kubectl apply -f deployment.yml
+```
+
+- 일부만 성공(74.77 %)하고 나머지는 배포시 중단 된 것을 확인할 수 있음
+```sh
+** SIEGE 4.0.4
+** Preparing 1 concurrent users for battle.
+The server is now under siege...
+HTTP/1.1 200     0.02 secs:     301 bytes ==> GET  /orders
+HTTP/1.1 200     0.01 secs:     301 bytes ==> GET  /orders
+HTTP/1.1 200     0.02 secs:     301 bytes ==> GET  /orders
+HTTP/1.1 200     0.01 secs:     301 bytes ==> GET  /orders
+HTTP/1.1 200     0.01 secs:     301 bytes ==> GET  /orders
+...
+[error] socket: unable to connect sock.c:249: Connection refused
+[error] socket: unable to connect sock.c:249: Connection refused
+
+Lifting the server siege...
+Transactions:                     80 hits
+Availability:                  74.77 %
+Elapsed time:                  59.40 secs
+Data transferred:               0.02 MB
+Response time:                  0.02 secs
+Transaction rate:               1.35 trans/sec
+Throughput:                     0.00 MB/sec
+Concurrency:                    0.02
+Successful transactions:          80
+Failed transactions:              27
+Longest transaction:            0.05
+Shortest transaction:           0.00
+```
+
+- Readiness Probe 설정
+```yaml
+# Order > kubernetes > deployment.yaml
+apiVersion: apps/v
+kind: Deployment
+metadata:
+  name: order
+  labels:
+    app: order
+spec:
+  replicas: 1
+  selector:
+    matchLabels
+      app: order
+  template:
+    metadata:
+      labels:
+        app: order
+    spec:
+      containers:
+        - name: order
+          image: eunjong4421/order:v2
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: '/orders'
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 10
+```
+
+- siege를 통한 무중단 배포 테스트
+	-  siege 내부에서 먼저 부하 수행 명령어를 수행한 후 
+	- 다른 터미널에서 배포를 진행하여 부하를 확인한다.
+```sh
+# 테스트 수행
+root@siege:/# siege -c1 -t60S -v http://order:8080/orders --delay=1S
+
+# 배포한다
+$ kubectl apply -f deployment.yml
+```
+
+- readinessProbe 설정을 통해 100.00%에 달하는 Availability를 보여주는 것을 확인 가능
+```sh
+#결과
+** SIEGE 4.0.4
+** Preparing 1 concurrent users for battle.
+The server is now under siege...
+HTTP/1.1 200     0.80 secs:     344 bytes ==> GET  /orders
+HTTP/1.1 200     0.03 secs:     344 bytes ==> GET  /orders
+...
+HTTP/1.1 200     0.02 secs:     301 bytes ==> GET  /orders
+HTTP/1.1 200     0.02 secs:     301 bytes ==> GET  /orders
+
+Lifting the server siege...
+Transactions:                     90 hits
+Availability:                 100.00 %
+Elapsed time:                  59.94 secs
+Data transferred:               0.03 MB
+Response time:                  0.03 secs
+Transaction rate:               1.50 trans/sec
+Throughput:                     0.00 MB/sec
+Concurrency:                    0.04
+Successful transactions:          90
+Failed transactions:               0
+Longest transaction:            0.80
+Shortest transaction:           0.01
+
+# 배포한다
+$ kubectl apply -f deployment.yml
+```
 
 ## Config Map / Persistence Volume
 
