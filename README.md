@@ -247,15 +247,14 @@ mvn spring-boot:run
         "totalPages": 1
     }
 }
-```
+
 
 ## Correlation / Compensation(Unique Key)
 
 ## Req / Resp (feign client)
 
 * Interface 선언을 통해 자동으로 Http Client 생성
-* Annotation만으로 Http Client를 만들수 있고, 이를 통해서 원격의 Http API호출이 가능
-<br>
+* Annotation만으로 Http Client를 만들수 있고, 이를 통해서 원격의 Http API호출이 가능<br>
 
 * Dependency 추가
 ```
