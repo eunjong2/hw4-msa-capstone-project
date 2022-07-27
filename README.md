@@ -473,7 +473,97 @@ Date: Tue, 26 Jul 2022 23:45:55 GMT
 
 
 ## Autoscale(HPA)
+- metric server 설치
+```sh
+# metric server 설치
+$ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.7/components.yaml
 
+# 설치 확인
+$ kubectl get deployment metrics-server -n kube-system
+$ kubectl top pods -n kube-system    
+```
+
+- auto scaler 설정 및 설정값 확인
+```sh
+# auto scaler 설정
+$ kubectl autoscale deployment order --cpu-percent=20 --min=1 --max=3
+
+# 설정값 확인
+$ kubectl get hpa
+NAME    REFERENCE          TARGETS    MINPODS   MAXPODS   REPLICAS   AGE
+order   Deployment/order   <unknown>/20%   1         3         0          24s
+```
+
+- deployment.yaml 파일 수정
+```yaml
+...
+    spec:
+      containers:
+        - name: order
+          image: sbchoi29/order:memleak #eunjong4421/order:v2
+          ports:
+            - containerPort: 8080
+ -         resources:
+ -           limits:
+ -             cpu: 500m
+ -           requests:
+ -             cpu: 200m
+          readinessProbe:
+...
+```
+
+- 배포
+```sh
+# 배포
+$ kubectl apply -f Order/kubernetes/deployment.yam
+```
+
+- auto scale 설정 테스트
+	- seige 명령으로 부하를 주어 pod 개수가 늘어나는 것을 확인
+```sh
+$ kubectl exec -it siege -- /bin/bash
+$ siege -c20 -t40S -v http://order:8080/orders
+...
+Lifting the server siege...
+Transactions:                   2578 hits
+Availability:                 100.00 %
+Elapsed time:                  39.22 secs
+Data transferred:               0.74 MB
+Response time:                  0.30 secs
+Transaction rate:              65.73 trans/sec
+Throughput:                     0.02 MB/sec
+Concurrency:                   19.92
+Successful transactions:        2578
+Failed transactions:               0
+Longest transaction:            1.00
+Shortest transaction:           0.00
+```
+
+- 아래와 같이 order pod 개수가 3개로 늘어난 것을 확인
+```sh
+$ kubectl get pod
+NAME                       READY   STATUS    RESTARTS   AGE
+my-kafka-0                 1/1     Running   2          18h
+my-kafka-1                 1/1     Running   1          18h
+my-kafka-2                 1/1     Running   1          18h
+my-kafka-zookeeper-0       1/1     Running   0          18h
+mysql                      1/1     Running   0          33m
+order-5788449577-2dz96     1/1     Running   0          3m7s
+order-5788449577-j72cs     0/1     Running   0          30s
+order-5788449577-lz8c4     0/1     Running   0          30s
+payment-58cb577dc9-t9h8v   1/1     Running   0          18h
+siege                      1/1     Running   0          18h
+```
+
+- cpu값 늘어난 것을 확인 가능
+```sh
+$ kubectl get hpa
+NAME    REFERENCE          TARGETS    MINPODS   MAXPODS   REPLICAS   AGE
+order   Deployment/order   122%/20%   1         3         3          6m54s
+```
+	
+	
+	
 ## Self-Healing(Liveness Probe)
 - 메모리 부하 테스트를 위한 코드 수정
 ```java
