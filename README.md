@@ -901,14 +901,21 @@ EOF
 
 -   Secret 객체 생성
 ```sh
-kubectl apply -f - << EOF
+# 두개 중 하나의 방법을 채택하여 생성
+# case1)
+$ kubectl create secret generic mysql-pass --from-literal=password=admin
+
+# case2)
+$ echo "admin" | base64
+YWRtaW4K
+$ kubectl apply -f - << EOF
 apiVersion: v1
 kind: Secret
 metadata:
   name: mysql-pass
 type: Opaque
 data:
-  password: YWRtaW4=  
+  password: YWRtaW4K
 EOF
 ```
 
