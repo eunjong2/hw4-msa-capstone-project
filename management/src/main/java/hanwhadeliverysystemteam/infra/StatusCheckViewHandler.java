@@ -86,15 +86,16 @@ public class StatusCheckViewHandler {
     ) {
         try {
             if (!menuCancelled.validate()) return;
-            // view 객체 조회
-
+            
             List<StatusCheck> statusCheckList = statusCheckRepository.findByOrderId(
                 menuCancelled.getOrderId()
             );
+            List<Order> deliveryList = orderRepository.findByOrderId(orderCancelled.getId());
+            if ((deliveryList != null) && !deliveryList.isEmpty()){
+                
+
             for (StatusCheck statusCheck : statusCheckList) {
-                // view 객체에 이벤트의 eventDirectValue 를 set 함
-                statusCheck.setStatus("CANCELLED");
-                // view 레파지 토리에 save
+                statusCheck.setStatus("Cancelled");
                 statusCheckRepository.save(statusCheck);
             }
         } catch (Exception e) {
