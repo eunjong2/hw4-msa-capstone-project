@@ -938,7 +938,7 @@ $ kubectl expose pod mysql --port=3306
 
 
 -   Pod 에 접속하여 h-taxi-db 데이터베이스 공간을 만들어주고 데이터베이스가 잘 동작하는지 확인
-```sh
+```diff
 # mysql Pod 접속
 $ kubectl exec mysql -it -- bash
 bash-4.4# echo $MYSQL_ROOT_PASSWORD
@@ -958,7 +958,7 @@ owners.
 Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
 # mysql에 orderdb 데이터베이스 생성
-mysql> create database orderdb;
+- mysql> create database orderdb;
 Query OK, 1 row affected (0.01 sec)
 
 # 데이터 베이스 조회
@@ -969,7 +969,7 @@ mysql> show databases
 +--------------------+
 | information_schema |
 | mysql              |
-| orderdb            |
+- | orderdb            |
 | performance_schema |
 | sys                |
 +--------------------+
@@ -982,7 +982,7 @@ Bye
 -   Pod 삭제 후 재생성하고 다시 db에 접속하여  `영속성` 확인
 ```sh
 # mysql pod 삭제
-$ kubectl delete pod/mysql
+- $ kubectl delete pod/mysql
 
 $ kubectl apply -f - << EOF
 apiVersion: v1
@@ -1041,7 +1041,7 @@ mysql> show databases;
 +--------------------+
 | information_schema |
 | mysql              |
-| orderdb            |
+- | orderdb            |
 | performance_schema |
 | sys                |
 +--------------------+
