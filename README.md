@@ -145,7 +145,7 @@ public class Order {
 * 고객이 메뉴를 선택하고 주문을 요청한다.
 * 결제서비스를 호출하기위해 FeinClient를 이용하여 인터페이스(Proxy)를 구현한다.
 * 주문을 받은 직후(`@PostPersist`) 결제를 요청하도록 처리한다.
-```
+
 
 ## CQRS Pattern
 * `주문(Order)`, `결제(Payment)` 서비스 실행
@@ -154,10 +154,12 @@ public class Order {
     cd Order
     mvn spring-boot:run
 ```
+
 ```
     cd Payment
     mvn spring-boot:run 
 ```
+
 * 주문 요청, 취소 요청
 ```
 - http localhost:8081/orders address="suwon" menuName="pizza" orderId=1 orderStatus="Ordered" price=1000 qty=10
@@ -211,7 +213,7 @@ mvn spring-boot:run
 ```
 * management Query Model을 통해 상태를 `통합조회` 가능하다
 
-```
+
 ```
 {
     "_embedded": {
