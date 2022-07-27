@@ -503,11 +503,11 @@ order   Deployment/order   <unknown>/20%   1         3         0          24s
           image: sbchoi29/order:memleak #eunjong4421/order:v2
           ports:
             - containerPort: 8080
- -         resources:
- -           limits:
- -             cpu: 500m
- -           requests:
- -             cpu: 200m
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 200m
           readinessProbe:
 ...
 ```
