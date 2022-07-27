@@ -500,7 +500,7 @@ order   Deployment/order   <unknown>/20%   1         3         0          24s
 ```
 
 - deployment.yaml 파일 수정
-```yaml
+```diff
 ...
     spec:
       containers:
@@ -508,11 +508,11 @@ order   Deployment/order   <unknown>/20%   1         3         0          24s
           image: sbchoi29/order:memleak #eunjong4421/order:v2
           ports:
             - containerPort: 8080
-          resources:
-            limits:
-              cpu: 500m
-            requests:
-              cpu: 200m
++          resources:
++            limits:
++              cpu: 500m
++            requests:
++              cpu: 200m
           readinessProbe:
 ...
 ```
@@ -547,24 +547,24 @@ Shortest transaction:           0.00
 - 아래와 같이 order pod 개수가 3개로 늘어난 것을 확인
 ```sh
 $ kubectl get pod
-NAME                       READY   STATUS    RESTARTS   AGE
-my-kafka-0                 1/1     Running   2          18h
-my-kafka-1                 1/1     Running   1          18h
-my-kafka-2                 1/1     Running   1          18h
-my-kafka-zookeeper-0       1/1     Running   0          18h
-mysql                      1/1     Running   0          33m
-order-5788449577-2dz96     1/1     Running   0          3m7s
-order-5788449577-j72cs     0/1     Running   0          30s
-order-5788449577-lz8c4     0/1     Running   0          30s
-payment-58cb577dc9-t9h8v   1/1     Running   0          18h
-siege                      1/1     Running   0          18h
+  NAME                       READY   STATUS    RESTARTS   AGE
+  my-kafka-0                 1/1     Running   2          18h
+  my-kafka-1                 1/1     Running   1          18h
+  my-kafka-2                 1/1     Running   1          18h
+  my-kafka-zookeeper-0       1/1     Running   0          18h
+  mysql                      1/1     Running   0          33m
+  order-5788449577-2dz96     1/1     Running   0          3m7s
++ order-5788449577-j72cs     0/1     Running   0          30s
++ order-5788449577-lz8c4     0/1     Running   0          30s
+  payment-58cb577dc9-t9h8v   1/1     Running   0          18h
+  siege                      1/1     Running   0          18h
 ```
 
 - cpu값 늘어난 것을 확인 가능
 ```sh
 $ kubectl get hpa
-NAME    REFERENCE          TARGETS    MINPODS   MAXPODS   REPLICAS   AGE
-order   Deployment/order   122%/20%   1         3         3          6m54s
+  NAME    REFERENCE          TARGETS    MINPODS   MAXPODS   REPLICAS   AGE
++ order   Deployment/order   122%/20%   1         3         3          6m54s
 ```
 	
 	
@@ -619,7 +619,7 @@ $ docker push sbchoi29/order:memleak
 ```
 
 - deployment.yaml 수정
-```yaml
+```diff
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -638,7 +638,7 @@ spec:
     spec:
       containers:
         - name: order
-          image: sbchoi29/order:memleak #eunjong4421/order:v2
++          image: sbchoi29/order:memleak #eunjong4421/order:v2
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -649,14 +649,14 @@ spec:
             timeoutSeconds: 2
             periodSeconds: 5
             failureThreshold: 10
-          livenessProbe:
-            httpGet:
-              path: '/actuator/health'
-              port: 8080
-            initialDelaySeconds: 120
-            timeoutSeconds: 2
-            periodSeconds: 5
-            failureThreshold: 5
++          livenessProbe:
++            httpGet:
++              path: '/actuator/health'
++              port: 8080
++            initialDelaySeconds: 120
++            timeoutSeconds: 2
++            periodSeconds: 5
++            failureThreshold: 5
 ```
 
 - deployment 배포
@@ -678,11 +678,11 @@ $ kubectl exec -it siege -- /bin/bash
 ```
 
 - Restarts 카운트가 0에서 1로 증가하는 것을 확인
-```sh
-NAME                       READY   STATUS    RESTARTS   AGE
-order-56769458b8-8mk2f     1/1     Running   1          15m
-payment-58cb577dc9-t9h8v   1/1     Running   0          17h
-siege                      1/1     Running   0          16h
+```diff
+  NAME                       READY   STATUS    RESTARTS   AGE
++ order-56769458b8-8mk2f     1/1     Running   1          15m
+  payment-58cb577dc9-t9h8v   1/1     Running   0          17h
+  siege                      1/1     Running   0          16h
 ```
 
 
@@ -751,7 +751,7 @@ $ kubectl apply -f deployment.yml
 ```
 
 - 일부만 성공(74.77 %)하고 나머지는 배포시 중단 된 것을 확인할 수 있음
-```sh
+```diff
 ** SIEGE 4.0.4
 ** Preparing 1 concurrent users for battle.
 The server is now under siege...
@@ -761,12 +761,12 @@ HTTP/1.1 200     0.02 secs:     301 bytes ==> GET  /orders
 HTTP/1.1 200     0.01 secs:     301 bytes ==> GET  /orders
 HTTP/1.1 200     0.01 secs:     301 bytes ==> GET  /orders
 ...
-[error] socket: unable to connect sock.c:249: Connection refused
-[error] socket: unable to connect sock.c:249: Connection refused
+- [error] socket: unable to connect sock.c:249: Connection refused
+- [error] socket: unable to connect sock.c:249: Connection refused
 
 Lifting the server siege...
 Transactions:                     80 hits
-Availability:                  74.77 %
+- Availability:                  74.77 %
 Elapsed time:                  59.40 secs
 Data transferred:               0.02 MB
 Response time:                  0.02 secs
@@ -780,7 +780,7 @@ Shortest transaction:           0.00
 ```
 
 - Readiness Probe 설정
-```yaml
+```diff
 # Order > kubernetes > deployment.yaml
 apiVersion: apps/v
 kind: Deployment
@@ -803,14 +803,14 @@ spec:
           image: eunjong4421/order:v2
           ports:
             - containerPort: 8080
-          readinessProbe:
-            httpGet:
-              path: '/orders'
-              port: 8080
-            initialDelaySeconds: 10
-            timeoutSeconds: 2
-            periodSeconds: 5
-            failureThreshold: 10
+ +         readinessProbe:
+ +           httpGet:
+ +             path: '/orders'
+ +             port: 8080
+ +           initialDelaySeconds: 10
+ +           timeoutSeconds: 2
+ +           periodSeconds: 5
+ +           failureThreshold: 10
 ```
 
 - siege를 통한 무중단 배포 테스트
@@ -825,7 +825,7 @@ $ kubectl apply -f deployment.yml
 ```
 
 - readinessProbe 설정을 통해 100.00%에 달하는 Availability를 보여주는 것을 확인 가능
-```sh
+```diff
 #결과
 ** SIEGE 4.0.4
 ** Preparing 1 concurrent users for battle.
@@ -838,7 +838,7 @@ HTTP/1.1 200     0.02 secs:     301 bytes ==> GET  /orders
 
 Lifting the server siege...
 Transactions:                     90 hits
-Availability:                 100.00 %
++ Availability:                 100.00 %
 Elapsed time:                  59.94 secs
 Data transferred:               0.03 MB
 Response time:                  0.03 secs
@@ -944,35 +944,23 @@ $ kubectl exec mysql -it -- bash
 bash-4.4# echo $MYSQL_ROOT_PASSWORD
 admin
 bash-4.4# mysql --user=root --password=$MYSQL_ROOT_PASSWORD
-mysql: [Warning] Using a password on the command line interface can be insecure.
-Welcome to the MySQL monitor.  Commands end with ; or \g.
-Your MySQL connection id is 8
-Server version: 8.0.30 MySQL Community Server - GPL
-
-Copyright (c) 2000, 2022, Oracle and/or its affiliates.
-
-Oracle is a registered trademark of Oracle Corporation and/or its
-affiliates. Other names may be trademarks of their respective
-owners.
-
-Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
 # mysql에 orderdb 데이터베이스 생성
-- mysql> create database orderdb;
++ mysql> create database orderdb;
 Query OK, 1 row affected (0.01 sec)
 
 # 데이터 베이스 조회
 mysql> show databases
     -> ;
-+--------------------+
-| Database           |
-+--------------------+
-| information_schema |
-| mysql              |
+  +--------------------+
+  | Database           |
+  +--------------------+
+  | information_schema |
+  | mysql              |
 - | orderdb            |
-| performance_schema |
-| sys                |
-+--------------------+
+  | performance_schema |
+  | sys                |
+  +--------------------+
 5 rows in set (0.00 sec)
 
 mysql> exit
@@ -1019,32 +1007,20 @@ $ kubectl exec mysql -it -- bash
 
 # database 접속
 bash-4.4# mysql --user=root --password=$MYSQL_ROOT_PASSWORD
-mysql: [Warning] Using a password on the command line interface can be insecure.
-Welcome to the MySQL monitor.  Commands end with ; or \g.
-Your MySQL connection id is 8
-Server version: 8.0.30 MySQL Community Server - GPL
-
-Copyright (c) 2000, 2022, Oracle and/or its affiliates.
-
-Oracle is a registered trademark of Oracle Corporation and/or its
-affiliates. Other names may be trademarks of their respective
-owners.
-
-Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 ```
 
 - 이전에 생성했던 orderdb가 존재하는 것을 확인
-```sh
+```diff
 mysql> show databases;
-+--------------------+
-| Database           |
-+--------------------+
-| information_schema |
-| mysql              |
+  +--------------------+
+  | Database           |
+  +--------------------+
+  | information_schema |
+  | mysql              |
 - | orderdb            |
-| performance_schema |
-| sys                |
-+--------------------+
+  | performance_schema |
+  | sys                |
+  +--------------------+
 5 rows in set (0.00 sec)
 
 mysql> exit
