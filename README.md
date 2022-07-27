@@ -157,7 +157,106 @@ public interface PaymentService {
 ```
 
 ## CQRS Pattern
+* `주문(Order)`, `결제(Payment)` 서비스 실행
 
+```
+    cd Order
+    mvn spring-boot:run
+```
+```
+    cd Payment
+    mvn spring-boot:run 
+```
+* 주문 요청, 취소 요청
+```
+- http localhost:8081/orders address="suwon" menuName="pizza" orderId=1 orderStatus="Ordered" price=1000 qty=10
+
+- http PUT localhost:8081/orders/1/cancel
+```
+```
+HTTP/1.1 201 
+
+{
+    "_links": {
+        "order": {
+            "href": "http://localhost:8081/orders/1"
+        },
+        "self": {
+            "href": "http://localhost:8081/orders/1"
+        }
+    },
+    "address": "suwon",
+    "menuName": "pizza",
+    "orderId": 1,
+    "orderStatus": "Ordered",
+    "price": 1000.0,
+    "qty": 10
+}
+
+{
+    "address": "suwon",
+    "id": 1,
+    "menuName": "pizza",
+    "orderId": 1,
+    "orderStatus": "Cancelled",
+    "price": 1000.0,
+    "qty": 10
+}
+```
+
+* 카프카 모니터링
+```
+/usr/local/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic hanwhaDeliverySystem --from-beginning
+```
+```
+{"eventType":"MenuOrdered","timestamp":1658881581353,"id":2,"menuName":"pizza","orderId":1,"address":"suwon","qty":10,"orderStatus":"Ordered","price":1000.0}
+{"eventType":"MenuCancelled","timestamp":1658882293371,"id":1,"menuName":"pizza","orderId":1,"address":"suwon","qty":10,"orderStatus":"Ordered","price":1000.0}
+```
+* management 실행
+
+```
+cd management
+mvn spring-boot:run
+```
+* management Query Model을 통해 상태를 `통합조회` 가능하다
+
+```
+{
+    "_embedded": {
+        "statusChecks": [
+            {
+                "_links": {
+                    "self": {
+                        "href": "http://localhost:8083/statusChecks/1"
+                    },
+                    "statusCheck": {
+                        "href": "http://localhost:8083/statusChecks/1"
+                    }
+                },
+                "orderId": 1,
+                "status": "Cancelled"
+            }
+        ]
+    },
+    "_links": {
+        "profile": {
+            "href": "http://localhost:8083/profile/statusChecks"
+        },
+        "search": {
+            "href": "http://localhost:8083/statusChecks/search"
+        },
+        "self": {
+            "href": "http://localhost:8083/statusChecks"
+        }
+    },
+    "page": {
+        "number": 0,
+        "size": 20,
+        "totalElements": 1,
+        "totalPages": 1
+    }
+}
+```
 
 ## Correlation / Compensation(Unique Key)
 
