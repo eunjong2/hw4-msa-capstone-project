@@ -540,9 +540,6 @@ Successful transactions:          90
 Failed transactions:               0
 Longest transaction:            0.80
 Shortest transaction:           0.01
-
-# 배포한다
-$ kubectl apply -f deployment.yml
 ```
 
 ## Config Map / Persistence Volume
