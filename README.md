@@ -212,6 +212,7 @@ mvn spring-boot:run
 * management Query Model을 통해 상태를 `통합조회` 가능하다
 
 ```
+```
 {
     "_embedded": {
         "statusChecks": [
@@ -247,7 +248,7 @@ mvn spring-boot:run
         "totalPages": 1
     }
 }
-
+```
 
 ## Correlation / Compensation(Unique Key)
 
